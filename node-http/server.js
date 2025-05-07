@@ -9,17 +9,16 @@ var port = 3000;
 var server = http.createServer((req, res) => {
     console.log(`Request for ${req.url} by method ${req.method}`);
 
-    if(req.method === 'Get'){
-        var fileUrl = req.url;
+    if(req.method === 'GET'){
+        let fileUrl = req.url;
         if(fileUrl === '/') {
             fileUrl = '/index.html';
         }
-    }
 
-    var filePath = path.resolve('./public'+fileUrl);
-    var fileExt = path.extname(filePath);
+    const filePath = path.resolve('./public'+fileUrl);
+    const fileExt = path.extname(filePath);
     if(fileExt === '.html'){
-        fs.access(filePath, function(err){
+        fs.access(filePath, function (err){
             if (err){
                 res.statusCode = 404;
                 res.setHeader('Content-Type','text/html');
@@ -30,11 +29,17 @@ var server = http.createServer((req, res) => {
     res.setHeader('Content-Type','text/html');
     fs.createReadStream(filePath).pipe(res);
 });
-    }else{
+    } else {
         res.statusCode = 404;
         res.setHeader('Content-Type','text/html')
-        res
+        res.end(`<html><body><h1>Error 404: ${fileUrl} is not an HTML file</h1></body></html>`);
     }
+} else {
+    res.statusCode = 404;
+    res.setHeader('Content-Type','text/html');
+    res.end(`<html><body><h1>Error 404: ${req.method} not supported </h1></body></html>`);
+}
+});
 
 server.listen(port,hostname, ()=> {
     console.log(`Server running at http://${hostname}:${port}/`);
